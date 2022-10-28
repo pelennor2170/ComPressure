@@ -2,36 +2,30 @@
 
 #include "IPlug_include_in_plug_hdr.h"
 #include "IControls.h"
+#include "SvfLinearTrapOptimised2.hpp"
 
 const int kNumPresets = 1;
 
-double muVaryL;
-double muAttackL;
-double muNewSpeedL;
-double muSpeedAL;
-double muSpeedBL;
-double muCoefficientAL;
-double muCoefficientBL;
 bool flip; 
-double muVaryR;
-double muAttackR;
-double muNewSpeedR;
-double muSpeedAR;
-double muSpeedBR;
-double muCoefficientAR;
-double muCoefficientBR;
 
+struct pressureVars {
+    double muVary;
+    double muAttack;
+    double muNewSpeed;
+    double muSpeedA;
+    double muSpeedB;
+    double muCoefficientA;
+    double muCoefficientB;
+    double slewMax;
+    double mewiness;
+    double pawClaw;
+    double threshold;
+    double release;
+    double fastest;
+};
 
-double highpassSampleAA;
-double highpassSampleAB;
-double highpassSampleBA;
-double highpassSampleBB;
-double highpassSampleCA;
-double highpassSampleCB;
-double highpassSampleDA;
-double highpassSampleDB;
-double highpassSampleE;
-double highpassSampleF; 
+struct pressureVars pressureSettings[2];
+
 
 //Pressure
 
@@ -63,8 +57,14 @@ double intermediateR[16];
 bool wasPosClipR;
 bool wasNegClipR; //Stereo ClipOnly2
 
-double slewMaxL; //to adust mewiness
-double slewMaxR;
+struct clipOnly2Vars {
+  double lastSample;
+  double intermediate[16];
+  bool wasPosClip;
+  bool wasNegClip;
+};
+
+struct clipOnly2Vars clipOnly2Settings[2];
 
 uint32_t fpdL;
 uint32_t fpdR;
@@ -78,13 +78,13 @@ enum EParams
   kSpeedL,
   kMewinessL,
   kPawClawL,
-  kOutputLevelL,
+  kMakeupGainL,
   kMaxGainReductL,
   kPressureR,
   kSpeedR,
   kMewinessR,
   kPawClawR,
-  kOutputLevelR,
+  kMakeupGainR,
   kMaxGainReductR,
   kDryWet,
   kSidechainOn,
@@ -97,7 +97,8 @@ enum EParams
   kLinkSides,
   kBypass,
   kLimiter,
-  kTestSwitch,
+  kMainOutput,
+  kTextCtrl,
   kNumParams
 };
 
@@ -113,6 +114,11 @@ enum EControlTags {
   kNumCtrlTags
 };
 
+double debug1 = 6.66 ;
+double debug2 = 6.66 ;
+double debug3 = 6.66 ;
+
+
 using namespace iplug;
 using namespace igraphics;
 
@@ -120,9 +126,12 @@ class ComPressure final : public Plugin
 {
 public:
   ComPressure(const InstanceInfo& info);
-  double calcGainRedCoeffL(double inputSense, double mewinessRef, double pawsClaws, double threshold, double release, double fastest);
-  double calcGainRedCoeffR(double inputSense, double mewinessRef, double pawsClaws, double threshold, double release, double fastest);
-  double HighpassFilter(double inSample,double iirAmountD);
+  double calcGainRedCoeff(double inputSense, struct pressureVars& ps);
+
+  void ultrasonicFilter(double& spL, double& spR, double* fix);
+
+  bool clipOnly2(double& spl, struct clipOnly2Vars& cov, int spacing);
+
   void updateLED();
 
   void OnReset() override; 
@@ -143,6 +152,9 @@ private:
   bool bypassed;
   bool sideChainOn;
   bool sideChainHPFOn;
+  bool GRLimitedL;
+  bool GRLimitedR;
   bool mInputChansConnected[4] = {};
+  SvfLinearTrapOptimised2 filter;
 
 };
