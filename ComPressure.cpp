@@ -3,6 +3,71 @@
 #include "IControls.h"
 #include "SvfLinearTrapOptimised2.hpp"
 
+
+// webpage link to use https://www.pelennordsp.com/compressure
+
+
+
+class GRMeterFrame : public IControl
+{
+public:
+  GRMeterFrame(const IRECT& bounds)
+  : IControl(bounds)
+  {
+    
+    //AttachIControl(this, "");
+  }
+  
+  void Draw(IGraphics& g) override
+  {
+    g.LoadFont("Roboto-Regular", ROBOTO_FN);
+    g.LoadFont("FreeSans", FONTTEST_FN);
+
+    g.FillRect(COLOR_GRAY , mRECT.GetCentredInside(2,27).GetVShifted(8).GetHShifted(-107)); // -1 DB
+    g.DrawText(myText, "-1dB", mRECT.GetCentredInside(20,10).GetVShifted(-10).GetHShifted(-104));
+    g.FillRect(COLOR_GRAY , mRECT.GetCentredInside(2,27).GetVShifted(8).GetHShifted(-42));  // -2 DB
+    g.DrawText(myText, "-2dB", mRECT.GetCentredInside(20,10).GetVShifted(-10).GetHShifted(-39));
+    g.FillRect(COLOR_GRAY , mRECT.GetCentredInside(2,27).GetVShifted(8).GetHShifted(18));   // -4 DB
+    g.DrawText(myText, "-4dB", mRECT.GetCentredInside(20,10).GetVShifted(-10).GetHShifted(15));
+    g.FillRect(COLOR_GRAY , mRECT.GetCentredInside(2,27).GetVShifted(8).GetHShifted(67));   // -8 DB
+    g.DrawText(myText, "-8dB", mRECT.GetCentredInside(20,10).GetVShifted(-10).GetHShifted(64));
+    g.FillRect(COLOR_GRAY , mRECT.GetCentredInside(2,27).GetVShifted(8).GetHShifted(108));  // -21 DB
+    g.DrawText(myText, "-21dB", mRECT.GetCentredInside(20,10).GetVShifted(-10).GetHShifted(105));
+
+
+  }
+private:
+  IText myText = DEFAULT_VALUE_TEXT.WithFGColor(COLOR_WHITE).WithFont("FreeSans").WithSize(13.);
+};
+
+  // std::initializer_list<int> custom_markers = {0, -6, -18, -30, -42};
+class StdMeterFrame : public IControl
+{
+public:
+StdMeterFrame(const IRECT& bounds)
+  : IControl(bounds)
+  {
+    
+    //AttachIControl(this, "");
+  }
+  
+  void Draw(IGraphics& g) override
+  {
+    g.LoadFont("Roboto-Regular", ROBOTO_FN);
+    g.LoadFont("FreeSans", FONTTEST_FN);
+
+    g.DrawText(myText, "-42dB", mRECT.GetCentredInside(20,10).GetVShifted(-10).GetHShifted(-104));
+    g.DrawText(myText, "-30dB", mRECT.GetCentredInside(20,10).GetVShifted(-10).GetHShifted(-39));
+    g.DrawText(myText, "-18dB", mRECT.GetCentredInside(20,10).GetVShifted(-10).GetHShifted(30));
+    g.DrawText(myText, "-6dB", mRECT.GetCentredInside(20,10).GetVShifted(-10).GetHShifted(105));
+    g.DrawText(myText, "0dB", mRECT.GetCentredInside(20,10).GetVShifted(-10).GetHShifted(142));
+
+
+  }
+private:
+  IText myText = DEFAULT_VALUE_TEXT.WithFGColor(COLOR_WHITE).WithFont("FreeSans").WithSize(13.);
+};
+
 ComPressure::ComPressure(const InstanceInfo& info)
 : iplug::Plugin(info, MakeConfig(kNumParams, kNumPresets))
 {
@@ -58,15 +123,10 @@ ComPressure::ComPressure(const InstanceInfo& info)
     pGraphics->LoadFont("FreeSans", FONTTEST_FN);
 
 
-    const IBitmap knobBitmap = pGraphics->LoadBitmap(KNOB_FN, 101);
 
-
-    const IBitmap sideDisableBitmap = pGraphics->LoadBitmap(SIDESWITCH_FN, 2);
-    const IBitmap switchBitmap = pGraphics->LoadBitmap(SWITCH_FN, 2);
-    const IBitmap switchNoLedBitmap = pGraphics->LoadBitmap(SWITCH_NOLED_FN,2);
-    const IBitmap bypassBitmap = pGraphics->LoadBitmap(SWITCH_BYPASS_FN, 2);
 
     std::initializer_list<int> custom_markers = {0, -6, -18, -30, -42};
+    std::initializer_list<int> custom_markers2 = {-21, -8, -4, -2, -1};
     std::initializer_list<const char*> emptyTrackNames = {};
     
 
@@ -76,6 +136,8 @@ ComPressure::ComPressure(const InstanceInfo& info)
     const IColor CP_COLOR_GREEN(255,116,254,0);
     const IColor CP_COLOR_ORANGE(255,255,147,0);
     const IColor CP_COLOR_RED(255,232,43,0);
+    const IColor CP_COLOR_BG(255,35,35,35);
+    
 
 
     const IVStyle styleKnobs {
@@ -97,13 +159,14 @@ ComPressure::ComPressure(const InstanceInfo& info)
     };
 
     const IVStyle styleTogButts = styleKnobs.WithValueText(DEFAULT_VALUE_TEXT.WithFGColor(COLOR_WHITE).WithFont("FreeSans").WithSize(18.));
+    const IVStyle styleHelpButts = styleKnobs.WithValueText(DEFAULT_VALUE_TEXT.WithFGColor(COLOR_WHITE).WithFont("FreeSans").WithSize(8.));
 
      const IVStyle styleOutMeter {
       true, // Show label
       true, // Show value
       {
         DEFAULT_BGCOLOR, // Background
-        CP_COLOR_RED, // Foreground
+        CP_COLOR_ORANGE, // Foreground
         DEFAULT_PRCOLOR, // Pressed
         COLOR_GRAY, // Frame
         COLOR_WHITE, // Highlight
@@ -112,28 +175,48 @@ ComPressure::ComPressure(const InstanceInfo& info)
         DEFAULT_X2COLOR, // Extra 2
         DEFAULT_X3COLOR  // Extra 3
       }, // Colors
-      DEFAULT_LABEL_TEXT.WithFGColor(CP_COLOR_GOLD).WithFont("FreeSans").WithSize(16.),
-      DEFAULT_VALUE_TEXT.WithFGColor(COLOR_WHITE).WithFont("FreeSans").WithSize(13.)
+      DEFAULT_LABEL_TEXT.WithFGColor(COLOR_TRANSPARENT).WithFont("FreeSans").WithSize(16.),
+      DEFAULT_VALUE_TEXT.WithFGColor(COLOR_TRANSPARENT).WithFont("FreeSans").WithSize(13.)
     }; 
 
-  const IVStyle styleGRMeter = styleOutMeter.WithColor(kFG, CP_COLOR_GREEN);
+  const IVStyle styleInMeter = styleOutMeter.WithColor(kFG, CP_COLOR_GREEN);
 
-    pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(90).GetVShifted(-220).GetHShifted(-350), kPressureL, "Pressure", styleKnobs));
-    pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(90).GetVShifted(-220).GetHShifted(-250), kSpeedL, "Speed", styleKnobs));
-    pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(90).GetVShifted(-100).GetHShifted(-350), kMewinessL, "Mewiness", styleKnobs));
-    pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(90).GetVShifted(-100).GetHShifted(-250), kPawClawL, "PawClaw", styleKnobs));
-    pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(90).GetVShifted(20).GetHShifted(-350), kMakeupGainL, "Makeup", styleKnobs));
-    pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(90).GetVShifted(20).GetHShifted(-250), kMaxGainReductL, "GR Limit", styleKnobs));
+     const IVStyle styleGRMeter {
+      true, // Show label
+      true, // Show value
+      {
+        DEFAULT_BGCOLOR, // Background
+        CP_COLOR_RED, // Foreground
+        DEFAULT_PRCOLOR, // Pressed
+        COLOR_GRAY, // Frame
+        COLOR_TRANSPARENT, // Highlight
+        COLOR_TRANSPARENT, // Shadow
+        COLOR_TRANSPARENT, // Extra 1
+        DEFAULT_X2COLOR, // Extra 2
+        DEFAULT_X3COLOR  // Extra 3
+      }, // Colors
+      DEFAULT_LABEL_TEXT.WithFGColor(COLOR_TRANSPARENT).WithFont("FreeSans").WithSize(16.),
+      DEFAULT_VALUE_TEXT.WithFGColor(COLOR_TRANSPARENT)
+    }; 
+
+  // const IVStyle styleGRMeter = styleOutMeter.WithColor(kFG, CP_COLOR_RED);
+
+    pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(90).GetVShifted(-220).GetHShifted(-350), kPressureL, "Pressure", styleKnobs,true));
+    pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(90).GetVShifted(-220).GetHShifted(-250), kSpeedL, "Speed", styleKnobs,true));
+    pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(90).GetVShifted(-100).GetHShifted(-350), kMewinessL, "Mewiness", styleKnobs,true));
+    pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(90).GetVShifted(-100).GetHShifted(-250), kPawClawL, "PawClaw", styleKnobs,true));
+    pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(90).GetVShifted(20).GetHShifted(-350), kMakeupGainL, "Makeup", styleKnobs,true));
+    pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(90).GetVShifted(20).GetHShifted(-250), kMaxGainReductL, "GR Limit", styleKnobs,true));
 
     pGraphics->AttachControl(new IVToggleControl(b.GetCentredInside(100,36).GetVShifted(110).GetHShifted(-300), kSideDisableL,"" , styleTogButts, "Left/Mid IN", "Left/Mid IN"));
     pGraphics->AttachControl(new ILEDControl(b.GetCentredInside(25).GetVShifted(78).GetHShifted(-298), CP_COLOR_GOLD), kSideEnableLLED);
 
-    pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(90).GetVShifted(-220).GetHShifted(150), kPressureR, "Pressure", styleKnobs));
-    pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(90).GetVShifted(-220).GetHShifted(250), kSpeedR, "Speed", styleKnobs));
-    pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(90).GetVShifted(-100).GetHShifted(150), kMewinessR, "Mewiness", styleKnobs));
-    pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(90).GetVShifted(-100).GetHShifted(250), kPawClawR, "PawClaw", styleKnobs));
-    pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(90).GetVShifted(20).GetHShifted(150), kMakeupGainR, "Makeup", styleKnobs));
-    pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(90).GetVShifted(20).GetHShifted(250), kMaxGainReductR, "GR Limit", styleKnobs));
+    pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(90).GetVShifted(-220).GetHShifted(150), kPressureR, "Pressure", styleKnobs,true));
+    pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(90).GetVShifted(-220).GetHShifted(250), kSpeedR, "Speed", styleKnobs,true));
+    pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(90).GetVShifted(-100).GetHShifted(150), kMewinessR, "Mewiness", styleKnobs,true));
+    pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(90).GetVShifted(-100).GetHShifted(250), kPawClawR, "PawClaw", styleKnobs,true));
+    pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(90).GetVShifted(20).GetHShifted(150), kMakeupGainR, "Makeup", styleKnobs,true));
+    pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(90).GetVShifted(20).GetHShifted(250), kMaxGainReductR, "GR Limit", styleKnobs,true));
 
     pGraphics->AttachControl(new IVToggleControl(b.GetCentredInside(110,36).GetVShifted(110).GetHShifted(200), kSideDisableR,"" , styleTogButts, "Right/Side IN", "Right/Side IN"));
     pGraphics->AttachControl(new ILEDControl(b.GetCentredInside(25).GetVShifted(78).GetHShifted(202), CP_COLOR_GOLD), kSideEnableRLED);
@@ -150,7 +233,7 @@ ComPressure::ComPressure(const InstanceInfo& info)
     pGraphics->AttachControl(new ILEDControl(b.GetCentredInside(25).GetVShifted(173).GetHShifted(347), COLOR_RED), kClipIndicatorLED);
 
       
-    pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(90).GetVShifted(190).GetHShifted(-200), kHighpassSC, "SC Filter", styleKnobs));  
+    pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(90).GetVShifted(190).GetHShifted(-200), kHighpassSC, "SC Filter", styleKnobs,true));  
     
     pGraphics->AttachControl(new IVToggleControl(b.GetCentredInside(90,36).GetVShifted(205).GetHShifted(-100),kSidechainOn,"" , styleTogButts, "Ext. SC", "Ext. SC"));
     pGraphics->AttachControl(new ILEDControl(b.GetCentredInside(25).GetVShifted(173).GetHShifted(-98), CP_COLOR_GOLD), kSidechainLED);
@@ -159,30 +242,146 @@ ComPressure::ComPressure(const InstanceInfo& info)
     pGraphics->AttachControl(new IVToggleControl(b.GetCentredInside(90,36).GetVShifted(205).GetHShifted(0),kMidSideMode,"" , styleTogButts, "Mid/Side", "Mid/Side"));
     pGraphics->AttachControl(new ILEDControl(b.GetCentredInside(25).GetVShifted(173).GetHShifted(2), CP_COLOR_GOLD), kMidSideLED);
 
-    pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(90).GetVShifted(190).GetHShifted(100), kMainOutput, "Output", styleKnobs));
-    pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(90).GetVShifted(190).GetHShifted(200), kDryWet, "Dry-Wet", styleKnobs));
+    pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(90).GetVShifted(190).GetHShifted(100), kMainOutput, "Output", styleKnobs,true));
+    pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(90).GetVShifted(190).GetHShifted(200), kDryWet, "Dry-Wet", styleKnobs,true));
 
 
-    pGraphics->AttachControl(new IVPeakAvgMeterControl<2>(b.GetCentredInside(300,45).GetVShifted(-240).GetHShifted(-50), "Input", styleGRMeter, EDirection::Horizontal, emptyTrackNames, 0, -50.f, 0.f, custom_markers), kGRMeter);
+    pGraphics->AttachControl(new IVPeakAvgMeterControl<2>(b.GetCentredInside(300,45).GetVShifted(-240).GetHShifted(-50), "Input", styleInMeter, EDirection::Horizontal, emptyTrackNames, 0, -50.f, 0.f, custom_markers), kInMeter);
 
 
-    pGraphics->AttachControl(new IVPeakAvgMeterControl<2>(b.GetCentredInside(300,45).GetVShifted(-180).GetHShifted(-50), "Output", styleOutMeter, EDirection::Horizontal, emptyTrackNames, 0, -50.f, 0.f, custom_markers), kOutputMeter);
+    pGraphics->AttachControl(new IVPeakAvgMeterControl<2>(b.GetCentredInside(300,45).GetVShifted(-160).GetHShifted(-50), "Output", styleOutMeter, EDirection::Horizontal, emptyTrackNames, 0, -50.f, 0.f, custom_markers), kOutputMeter);
+
+    pGraphics->AttachControl(new IVPeakAvgMeterControl<2>(b.GetCentredInside(300,45).GetVShifted(-80).GetHShifted(-50), "Gain Reduction", styleGRMeter, EDirection::Horizontal, emptyTrackNames, 0, -50.f, -24.f, custom_markers2), kGRMeter);
 
     updateLED();
 
     pGraphics->AttachControl(new ITextControl(b.GetMidVPadded(50).GetHShifted(-150), "", styleKnobs.labelText), kTextCtrl);
 
 
+    auto pressureaction = [pGraphics](IControl* pCaller) {
+        SplashClickActionFunc(pCaller);
+        pGraphics->ShowMessageBox("Pressure", "Pressure determines at what point the compressor activates, ie the threshold", kMB_OK);
+    };
+
+  auto speedaction = [pGraphics](IControl* pCaller) {
+        SplashClickActionFunc(pCaller);
+        pGraphics->ShowMessageBox("Speed", "Speed controls how fast the compressor acts, both attack and release times", kMB_OK);
+    };
+
+  auto mewaction = [pGraphics](IControl* pCaller) {
+        SplashClickActionFunc(pCaller);
+        pGraphics->ShowMessageBox("Mewiness", "Mewiness manages the way that the ratio engages, with high levels giving vari-mu like behaviour", kMB_OK);
+    };
+
+  auto pawaction = [pGraphics](IControl* pCaller) {
+        SplashClickActionFunc(pCaller);
+        pGraphics->ShowMessageBox("PawClaw", "PawClaw controls how mewiness acts on transients, the claw end clamps down and the paw end lets them through more", kMB_OK);
+    };
+
+  auto mkgainaction = [pGraphics](IControl* pCaller) {
+        SplashClickActionFunc(pCaller);
+        pGraphics->ShowMessageBox("Makeup gain", "Makeup gain is the gain applied after any compression has been done", kMB_OK);
+    };
+
+  auto grlaction = [pGraphics](IControl* pCaller) {
+        SplashClickActionFunc(pCaller);
+        pGraphics->ShowMessageBox("Gain Reduction Limit", "The gain reduction limit causes the compressor to have a cap on how much gain reduction it will do.\nA zero value will cause the gain reduction limit to be disabled.", kMB_OK);
+    };
+
+  auto schpfaction = [pGraphics](IControl* pCaller) {
+        SplashClickActionFunc(pCaller);
+        pGraphics->ShowMessageBox("Sidechain Filter", "This is a high pass filter controlling how the detector responds to low frequencies.\nThis filter is active in either external or internal sidechain mode ,but disabled at the 30Hz setting", kMB_OK);
+    };
+
+  auto mainoutaction = [pGraphics](IControl* pCaller) {
+        SplashClickActionFunc(pCaller);
+        pGraphics->ShowMessageBox("Output", "Output controls the main (wet) output level, prior to the dry/wet mix setting", kMB_OK);
+    };
+
+  auto drywetaction = [pGraphics](IControl* pCaller) {
+        SplashClickActionFunc(pCaller);
+        pGraphics->ShowMessageBox("Dry-Wet", "Dry wet controls the balance between the dry input signal and the wet output signal", kMB_OK);
+    };
+
+  auto sidechaction = [pGraphics](IControl* pCaller) {
+        SplashClickActionFunc(pCaller);
+        pGraphics->ShowMessageBox("External Sidechain", "This switches compressor detection to use the external sidechain", kMB_OK);
+    };
+
+  auto midsideaction = [pGraphics](IControl* pCaller) {
+        SplashClickActionFunc(pCaller);
+        pGraphics->ShowMessageBox("Mid/Side", "This changes the channel mode to mid/side mode", kMB_OK);
+    };
+
+  auto softclipaction = [pGraphics](IControl* pCaller) {
+        SplashClickActionFunc(pCaller);
+        pGraphics->ShowMessageBox("Soft Clip", "Soft Clip activates a soft/safety clipper at the very end of the output chain.\nIf enabled it will be active at every left/right channel setting", kMB_OK);
+    };
+
+  auto disabsideaction = [pGraphics](IControl* pCaller) {
+        SplashClickActionFunc(pCaller);
+        pGraphics->ShowMessageBox("", "This allows processing on this side to be enabled or disabled", kMB_OK);
+    };
+
+  auto linkaction = [pGraphics](IControl* pCaller) {
+        SplashClickActionFunc(pCaller);
+        pGraphics->ShowMessageBox("Link", "This causes the controls on each of the left and right (or mid and side) sides to be linked\nWhen first enabled, the current left side settings are copied to the right side", kMB_OK);
+    };
+
+  auto bypassaction = [pGraphics](IControl* pCaller) {
+        SplashClickActionFunc(pCaller);
+        pGraphics->ShowMessageBox("Bypass", "This disables all plugin processing, except for the input and output meters", kMB_OK);
+    };
 
 
-    
-  };
+    pGraphics->AttachControl(new IVButtonControl(b.GetCentredInside(23).GetVShifted(-255).GetHShifted(-315), pressureaction, "?", styleHelpButts, true), kNoTag); // Pressure L
+    pGraphics->AttachControl(new IVButtonControl(b.GetCentredInside(23).GetVShifted(-255).GetHShifted(185), pressureaction, "?", styleHelpButts, true), kNoTag); // Pressure R
+    pGraphics->AttachControl(new IVButtonControl(b.GetCentredInside(23).GetVShifted(-255).GetHShifted(-217), speedaction, "?", styleHelpButts, true), kNoTag); // Speed L
+    pGraphics->AttachControl(new IVButtonControl(b.GetCentredInside(23).GetVShifted(-255).GetHShifted(283), speedaction, "?", styleHelpButts, true), kNoTag); // Speed R
+    pGraphics->AttachControl(new IVButtonControl(b.GetCentredInside(23).GetVShifted(-135).GetHShifted(-315), mewaction, "?", styleHelpButts, true), kNoTag); // Mewiness L
+    pGraphics->AttachControl(new IVButtonControl(b.GetCentredInside(23).GetVShifted(-135).GetHShifted(185), mewaction, "?", styleHelpButts, true), kNoTag); // Mewiness R
+    pGraphics->AttachControl(new IVButtonControl(b.GetCentredInside(23).GetVShifted(-135).GetHShifted(-217), pawaction, "?", styleHelpButts, true), kNoTag); // Pawclaw L
+    pGraphics->AttachControl(new IVButtonControl(b.GetCentredInside(23).GetVShifted(-135).GetHShifted(283), pawaction, "?", styleHelpButts, true), kNoTag); // Pawclaw R
+    pGraphics->AttachControl(new IVButtonControl(b.GetCentredInside(23).GetVShifted(-15).GetHShifted(-320), mkgainaction, "?", styleHelpButts, true), kNoTag); // Makeup Gain Left
+    pGraphics->AttachControl(new IVButtonControl(b.GetCentredInside(23).GetVShifted(-15).GetHShifted(180), mkgainaction, "?", styleHelpButts, true), kNoTag); // Makeup Gain Right        
+    pGraphics->AttachControl(new IVButtonControl(b.GetCentredInside(23).GetVShifted(-15).GetHShifted(-217), grlaction, "?", styleHelpButts, true), kNoTag); // GRL Left
+    pGraphics->AttachControl(new IVButtonControl(b.GetCentredInside(23).GetVShifted(-15).GetHShifted(283), grlaction, "?", styleHelpButts, true), kNoTag); // GRL Right 
+    pGraphics->AttachControl(new IVButtonControl(b.GetCentredInside(23).GetVShifted(155).GetHShifted(-165), schpfaction, "?", styleHelpButts, true), kNoTag); // sidechain HPF
+    pGraphics->AttachControl(new IVButtonControl(b.GetCentredInside(23).GetVShifted(155).GetHShifted(129), mainoutaction, "?", styleHelpButts, true), kNoTag); // main output
+    pGraphics->AttachControl(new IVButtonControl(b.GetCentredInside(23).GetVShifted(155).GetHShifted(233), drywetaction, "?", styleHelpButts, true), kNoTag); // dry-wet
+    pGraphics->AttachControl(new IVButtonControl(b.GetCentredInside(23).GetVShifted(234).GetHShifted(-70), sidechaction, "?", styleHelpButts, true), kNoTag); // sidechain toggle 
+    pGraphics->AttachControl(new IVButtonControl(b.GetCentredInside(23).GetVShifted(234).GetHShifted(30), midsideaction, "?", styleHelpButts, true), kNoTag); // midside toggle
+    pGraphics->AttachControl(new IVButtonControl(b.GetCentredInside(23).GetVShifted(176).GetHShifted(375), softclipaction, "?", styleHelpButts, true), kNoTag); // soft clip
+    pGraphics->AttachControl(new IVButtonControl(b.GetCentredInside(23).GetVShifted(139).GetHShifted(-266), disabsideaction, "?", styleHelpButts, true), kNoTag); // left side disable
+    pGraphics->AttachControl(new IVButtonControl(b.GetCentredInside(23).GetVShifted(139).GetHShifted(255), disabsideaction, "?", styleHelpButts, true), kNoTag); // right side disable
+    pGraphics->AttachControl(new IVButtonControl(b.GetCentredInside(23).GetVShifted(139).GetHShifted(-35), linkaction, "?", styleHelpButts, true), kNoTag); // link
+    pGraphics->AttachControl(new IVButtonControl(b.GetCentredInside(23).GetVShifted(-191).GetHShifted(365), bypassaction, "?", styleHelpButts, true), kNoTag); // bypass
+
+    pGraphics->AttachControl(new GRMeterFrame(b.GetCentredInside(300,45).GetVShifted(-80).GetHShifted(-50)), kNoTag);
+
+    pGraphics->AttachControl(new StdMeterFrame(b.GetCentredInside(300,45).GetVShifted(-160).GetHShifted(-50)), kNoTag);
+    pGraphics->AttachControl(new StdMeterFrame(b.GetCentredInside(300,45).GetVShifted(-240).GetHShifted(-50)), kNoTag);
+
+    pGraphics->AttachControl(new IVLabelControl (b.GetCentredInside(100,20).GetVShifted(-205).GetHShifted(-50), "Input", DEFAULT_STYLE.WithDrawFrame(false).WithDrawShadows(false).WithValueText(DEFAULT_VALUE_TEXT.WithFGColor(CP_COLOR_GOLD).WithFont("FreeSans").WithSize(16.))));
+    pGraphics->AttachControl(new IVLabelControl (b.GetCentredInside(100,20).GetVShifted(-125).GetHShifted(-50), "Output", DEFAULT_STYLE.WithDrawFrame(false).WithDrawShadows(false).WithValueText(DEFAULT_VALUE_TEXT.WithFGColor(CP_COLOR_GOLD).WithFont("FreeSans").WithSize(16.))));
+    pGraphics->AttachControl(new IVLabelControl (b.GetCentredInside(100,20).GetVShifted(-45).GetHShifted(-50), "Gain Reduction", DEFAULT_STYLE.WithDrawFrame(false).WithDrawShadows(false).WithValueText(DEFAULT_VALUE_TEXT.WithFGColor(CP_COLOR_GOLD).WithFont("FreeSans").WithSize(16.))));
+
+    pGraphics->AttachControl(new IVLabelControl (b.GetCentredInside(200,45).GetVShifted(-15).GetHShifted(-50), "ComPressure", DEFAULT_STYLE.WithDrawFrame(false).WithDrawShadows(false).WithValueText(DEFAULT_VALUE_TEXT.WithFGColor(COLOR_RED).WithFont("FreeSans").WithSize(24.))));
+
+    pGraphics->AttachControl(new IVLabelControl (b.GetCentredInside(100,20).GetVShifted(15).GetHShifted(-50), "v1.0 by", DEFAULT_STYLE.WithDrawFrame(false).WithDrawShadows(false).WithValueText(DEFAULT_VALUE_TEXT.WithFGColor(COLOR_WHITE).WithFont("FreeSans").WithSize(16.))));
+    pGraphics->AttachControl(new IURLControl (b.GetCentredInside(100,20).GetVShifted(40).GetHShifted(-50), "pelennor DSP", "http://pelennordsp.com", DEFAULT_VALUE_TEXT.WithFGColor(COLOR_WHITE).WithFont("FreeSans").WithSize(16.)));
+
+ 	//IURLControl (const IRECT &bounds, const char *str, const char *url, const IText &text=DEFAULT_TEXT, const IColor &BGColor=DEFAULT_BGCOLOR, const IColor &MOColor=COLOR_WHITE, const IColor &CLColor=COLOR_BLUE)
+
+ };
 
 }
 
-void ComPressure::OnReset()
+void ComPressure::ResetMainSettings()
 {
-
+    // assume nFrames = 512, nChans = 2
+  sample emptySplRawBuf[1024] = {0.0}; // an array of 1024 samples
+  sample* emptySplBuf[2] = {&emptySplRawBuf[0], &emptySplRawBuf[512]};
 
   for (int x = 0; x < 2; x++)
   {
@@ -206,16 +405,36 @@ void ComPressure::OnReset()
 
 	fpdL = 1.0; while (fpdL < 16386) fpdL = rand()*UINT32_MAX;
 	fpdR = 1.0; while (fpdR < 16386) fpdR = rand()*UINT32_MAX;
-	//this is reset: values being initialized only once. Startup values, whatever they are.
+
+  filter.resetState();
+
+}
+
+void ComPressure::OnReset()
+{
+  
+  mInMeterSender.Reset(GetSampleRate());
+  mOutMeterSender.Reset(GetSampleRate());
+  mGRMeterSender.Reset(GetSampleRate());
+
+  ResetMainSettings();
 
   clipIndicator = false;
   updateLED();
-  
 
+}
 
-  mMeterSender.Reset(GetSampleRate());
+void ComPressure::OnActivate(bool active)
+{
+    
+  mInMeterSender.Reset(GetSampleRate());
+  mOutMeterSender.Reset(GetSampleRate());
+  mGRMeterSender.Reset(GetSampleRate());
 
-  filter.resetState();
+  ResetMainSettings();
+
+  clipIndicator = false;
+  updateLED();
 
 }
 
@@ -224,7 +443,8 @@ void ComPressure::OnIdle()
     // if(GetUI()) {
     //   GetUI()->GetControlWithTag(kTextCtrl)->As<ITextControl>()->SetStrFmt(64, "GRL: %f GRR: %f GRT: %f", debug1, debug2, debug3);
     // }
-    mMeterSender.TransmitData(*this);
+    mOutMeterSender.TransmitData(*this);
+    mInMeterSender.TransmitData(*this);
     mGRMeterSender.TransmitData(*this);
 }
 
@@ -251,6 +471,7 @@ void ComPressure::OnParamChange(int paramIdx) {
               GetParam(kMaxGainReductR)->Set(GetParam(kMaxGainReductL)->Value());
               updateParms = true;
           }
+          ResetMainSettings();
           break;
 
         case kLimiter:
@@ -261,8 +482,9 @@ void ComPressure::OnParamChange(int paramIdx) {
         
         case kBypass:
             bypassed = m_ParamValues[paramIdx];
-            //mMeterSender.Reset(GetSampleRate());
+            //mOutMeterSender.Reset(GetSampleRate());
             updateLEDs = true;
+            ResetMainSettings();
             break;
 
         case kSideDisableL:
@@ -340,10 +562,12 @@ void ComPressure::OnParamChange(int paramIdx) {
                 GRLimitedL = false;
 
             if (sidesLinked)
+            {
               GetParam(kMaxGainReductR)->Set(m_ParamValues[paramIdx]);
               updateParms = true;
               GRLimitedR = GRLimitedL;
-              break;
+            }
+            break;
 
         case kMaxGainReductR:
 
@@ -353,13 +577,16 @@ void ComPressure::OnParamChange(int paramIdx) {
               GRLimitedR = false;
 
           if (sidesLinked)
+          {
               GetParam(kMaxGainReductL)->Set(m_ParamValues[paramIdx]);
               updateParms = true;
               GRLimitedL = GRLimitedR;
-              break;
+          }
+          break;
 
         case kSidechainOn:
             sideChainOn = m_ParamValues[paramIdx];
+            ResetMainSettings();
             break;
 
         case kHighpassSC:
@@ -367,6 +594,10 @@ void ComPressure::OnParamChange(int paramIdx) {
                 sideChainHPFOn = true;
             else 
                 sideChainHPFOn = false;
+            break;
+
+        case kMidSideMode:
+            ResetMainSettings();
             break;
             
       
@@ -544,12 +775,15 @@ void ComPressure::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
             outputs[c][s] = inputs[c][s];
         }
     }
-    mMeterSender.ProcessBlock(outputs, nFrames, kOutputMeter);
+    mOutMeterSender.ProcessBlock(outputs, nFrames, kOutputMeter);
+    mInMeterSender.ProcessBlock(inputs, nFrames,kInMeter);
     return;
   }
     
 
   bool clippedThisBlock = false;
+
+  double GRScale4Meter = DBToAmp(-24);
 
   double overallscale = 1.0;
 	overallscale /= 44100.0;
@@ -684,13 +918,13 @@ pressureSettings[1].fastest /= overallscale;
     debug2 += gainRedR;
 	  inputSampleR *= gainRedR;
 
-    grBuf[0][s] = drySampleL - inputSampleL;
-    grBuf[1][s] =  drySampleR - inputSampleR;
+    grBuf[0][s] = (drySampleL - inputSampleL) * (GRScale4Meter / drySampleL);
+    grBuf[1][s] =  (drySampleR - inputSampleR) * (GRScale4Meter / drySampleR);
 
 
 		//applied compression with vari-vari-µ-µ-µ-µ-µ-µ-is-the-kitten-song o/~
 		//applied gain correction to control output level- tends to constrain sound rather than inflate it
-		//mGRMeterSender.PushData({kGRMeter, {(float)gainRedL,(float)gainRedR}});
+		//mInMeterSender.PushData({kInMeter, {(float)gainRedL,(float)gainRedR}});
 		if (outputGainL != 1.0) inputSampleL *= outputGainL;
     if (outputGainR != 1.0) inputSampleR *= outputGainR;
 		
@@ -753,8 +987,9 @@ pressureSettings[1].fastest /= overallscale;
       debug2 = AmpToDB(1/debug2);
   debug3 = debug1 + debug2;
 
-  mMeterSender.ProcessBlock(outputs, nFrames, kOutputMeter);
-  mGRMeterSender.ProcessBlock(inputs, nFrames,kGRMeter);
+  mOutMeterSender.ProcessBlock(outputs, nFrames, kOutputMeter);
+  mInMeterSender.ProcessBlock(inputs, nFrames,kInMeter);
+  mGRMeterSender.ProcessBlock(grBuf, nFrames, kGRMeter);
 
   if (clipperIsOn) {
       if (clippedThisBlock) {

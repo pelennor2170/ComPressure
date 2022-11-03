@@ -1,16 +1,16 @@
 #define PLUG_NAME "ComPressure"
-#define PLUG_MFR "pelennor"
+#define PLUG_MFR "pelennorDSP"
 #define PLUG_VERSION_HEX 0x00010000
 #define PLUG_VERSION_STR "1.0.0"
 #define PLUG_UNIQUE_ID 'E86U'
 #define PLUG_MFR_ID 'Acme'
-#define PLUG_URL_STR "https://iplug2.github.io"
+#define PLUG_URL_STR "https://pelennordsp.com"
 #define PLUG_EMAIL_STR "pelennor@gmail.com"
-#define PLUG_COPYRIGHT_STR "Copyright 2022 pelennor@gmail.com"
+#define PLUG_COPYRIGHT_STR "Copyright 2022 pelennor DSP"
 #define PLUG_CLASS_NAME ComPressure
 
 #define BUNDLE_NAME "ComPressure"
-#define BUNDLE_MFR "pelennor"
+#define BUNDLE_MFR "pelennorDSP"
 #define BUNDLE_DOMAIN "com"
 
 #define SHARED_RESOURCES_SUBPATH "ComPressure"
@@ -46,7 +46,7 @@
 
 #define AAX_TYPE_IDS 'IEF1', 'IEF2'
 #define AAX_TYPE_IDS_AUDIOSUITE 'IEA1', 'IEA2'
-#define AAX_PLUG_MFR_STR "Acme"
+#define AAX_PLUG_MFR_STR "pelennor DSP"
 #define AAX_PLUG_NAME_STR "ComPressure\nIPEF"
 #define AAX_PLUG_CATEGORY_STR "Effect"
 #define AAX_DOES_AUDIOSUITE 1
@@ -61,16 +61,3 @@
 
 #define ROBOTO_FN "Roboto-Regular.ttf"
 #define FONTTEST_FN "FreeSans.ttf"
-
-
-#define BACKGROUND_FN "ComPressureBG.png"
-// #define KNOB_FN "Sonatom_nocolour.png"
-#define KNOB_FN "Moogish.png"
-//#define GAINKNOB_FN "Sonatom_red.png"
-#define SIDESWITCH_FN "switch_press.png"
-#define SWITCH_FN "Botton_Red_3.png"
-#define SWITCH_NOLED_FN "Botton_Red_3_noled.png"
-#define SWITCH_BYPASS_FN "Power_switch_01.png"
-
-#define POWEROFF_FN "switchoff.svg"
-#define POWERON_FN "switchon.svg"

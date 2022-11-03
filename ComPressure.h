@@ -91,6 +91,7 @@ enum EParams
   kHighpassSC,
   kMidSideMode,
   kOutputMeter,
+  kInMeter,
   kGRMeter,
   kSideDisableL,
   kSideDisableR,
@@ -133,15 +134,18 @@ public:
   bool clipOnly2(double& spl, struct clipOnly2Vars& cov, int spacing);
 
   void updateLED();
+  void ResetMainSettings();
 
   void OnReset() override; 
+  void OnActivate(bool active) override;
   void OnIdle() override;
-  void OnParamChange(int paramIdx) override;        
+  void OnParamChange(int paramIdx) override;
 
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
 
 private:
-  IPeakAvgSender<2> mMeterSender;
+  IPeakAvgSender<2> mInMeterSender;
+  IPeakAvgSender<2> mOutMeterSender;
   IPeakAvgSender<2> mGRMeterSender;
   double                m_ParamValues[kNumParams];
   bool clipIndicator;
