@@ -7,9 +7,9 @@
 	<key>CFBundleExecutable</key>
 	<string>ComPressure</string>
 	<key>CFBundleGetInfoString</key>
-	<string>ComPressure v1.0.0 Copyright 2022 pelennor@gmail.com</string>
+	<string>ComPressure v1.0.0 Copyright 2022 pelennor DSP</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.pelennor.vst3.ComPressure</string>
+	<string>com.pelennorDSP.vst3.ComPressure</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>

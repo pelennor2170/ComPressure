@@ -12,7 +12,7 @@
 			<key>manufacturer</key>
 			<string>Acme</string>
 			<key>name</key>
-			<string>pelennor: ComPressure</string>
+			<string>pelennorDSP: ComPressure</string>
 			<key>sandboxSafe</key>
 			<true/>
 			<key>subtype</key>
@@ -30,9 +30,9 @@
 	<key>CFBundleExecutable</key>
 	<string>ComPressure</string>
 	<key>CFBundleGetInfoString</key>
-	<string>ComPressure v1.0.0 Copyright 2022 pelennor@gmail.com</string>
+	<string>ComPressure v1.0.0 Copyright 2022 pelennor DSP</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.pelennor.audiounit.ComPressure</string>
+	<string>com.pelennorDSP.audiounit.ComPressure</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>

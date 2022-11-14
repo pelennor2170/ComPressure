@@ -20,9 +20,6 @@ public:
   
   void Draw(IGraphics& g) override
   {
-    g.LoadFont("Roboto-Regular", ROBOTO_FN);
-    g.LoadFont("FreeSans", FONTTEST_FN);
-
     g.FillRect(COLOR_GRAY , mRECT.GetCentredInside(2,27).GetVShifted(8).GetHShifted(-107)); // -1 DB
     g.DrawText(myText, "-1dB", mRECT.GetCentredInside(20,10).GetVShifted(-10).GetHShifted(-104));
     g.FillRect(COLOR_GRAY , mRECT.GetCentredInside(2,27).GetVShifted(8).GetHShifted(-42));  // -2 DB
@@ -53,9 +50,6 @@ StdMeterFrame(const IRECT& bounds)
   
   void Draw(IGraphics& g) override
   {
-    g.LoadFont("Roboto-Regular", ROBOTO_FN);
-    g.LoadFont("FreeSans", FONTTEST_FN);
-
     g.DrawText(myText, "-42dB", mRECT.GetCentredInside(20,10).GetVShifted(-10).GetHShifted(-104));
     g.DrawText(myText, "-30dB", mRECT.GetCentredInside(20,10).GetVShifted(-10).GetHShifted(-39));
     g.DrawText(myText, "-18dB", mRECT.GetCentredInside(20,10).GetVShifted(-10).GetHShifted(30));
@@ -137,7 +131,6 @@ ComPressure::ComPressure(const InstanceInfo& info)
     const IColor CP_COLOR_ORANGE(255,255,147,0);
     const IColor CP_COLOR_RED(255,232,43,0);
     const IColor CP_COLOR_BG(255,35,35,35);
-    
 
 
     const IVStyle styleKnobs {
