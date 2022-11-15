@@ -112,6 +112,8 @@ enum EControlTags {
   kLinkModeLED,
   kSideEnableLLED,
   kSideEnableRLED,
+  kGRLEnableLLED,
+  kGRLEnableRLED,
   kNumCtrlTags
 };
 
@@ -135,6 +137,7 @@ public:
 
   void updateLED();
   void ResetMainSettings();
+
 
   void OnReset() override; 
   void OnActivate(bool active) override;
@@ -162,3 +165,5 @@ private:
   SvfLinearTrapOptimised2 filter;
 
 };
+
+void MessageBox(const char * str, const char * msg, IGraphics* pGraphics);

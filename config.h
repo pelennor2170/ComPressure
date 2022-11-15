@@ -59,5 +59,5 @@
 #define APP_COPY_AUV3 0
 #define APP_SIGNAL_VECTOR_SIZE 64
 
-#define ROBOTO_FN "Roboto-Regular.ttf"
-#define FONTTEST_FN "FreeSans.ttf"
+#define ROBOTO_FN "FreeSans.ttf"
+// #define FONTTEST_FN "FreeSans.ttf"

@@ -34,7 +34,7 @@ public:
 
   }
 private:
-  IText myText = DEFAULT_VALUE_TEXT.WithFGColor(COLOR_WHITE).WithFont("FreeSans").WithSize(13.);
+  IText myText = DEFAULT_VALUE_TEXT.WithFGColor(COLOR_WHITE).WithSize(13.);
 };
 
   // std::initializer_list<int> custom_markers = {0, -6, -18, -30, -42};
@@ -59,7 +59,18 @@ StdMeterFrame(const IRECT& bounds)
 
   }
 private:
-  IText myText = DEFAULT_VALUE_TEXT.WithFGColor(COLOR_WHITE).WithFont("FreeSans").WithSize(13.);
+  IText myText = DEFAULT_VALUE_TEXT.WithFGColor(COLOR_WHITE).WithSize(13.);
+};
+
+void MessageBox(const char * str, const char * msg, IGraphics* pGraphics)
+{
+  #if defined OS_WIN || defined OS_LINUX
+    pGraphics->ShowMessageBox(msg, str, kMB_OK);
+  #elif defined OS_MAC
+    pGraphics->ShowMessageBox(str, msg, kMB_OK);
+  #endif
+
+
 };
 
 ComPressure::ComPressure(const InstanceInfo& info)
@@ -114,7 +125,7 @@ ComPressure::ComPressure(const InstanceInfo& info)
     pGraphics->AttachPanelBackground(IColor(255,35,35,35));
     
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
-    pGraphics->LoadFont("FreeSans", FONTTEST_FN);
+    //pGraphics->LoadFont("FreeSans", FONTTEST_FN);
 
 
 
@@ -147,12 +158,12 @@ ComPressure::ComPressure(const InstanceInfo& info)
         DEFAULT_X2COLOR, // Extra 2
         DEFAULT_X3COLOR  // Extra 3
       }, // Colors
-      DEFAULT_LABEL_TEXT.WithFGColor(COLOR_WHITE).WithFont("FreeSans").WithSize(16.),
-      DEFAULT_VALUE_TEXT.WithFGColor(CP_COLOR_GOLD).WithFont("FreeSans")
+      DEFAULT_LABEL_TEXT.WithFGColor(COLOR_WHITE).WithSize(16.),
+      DEFAULT_VALUE_TEXT.WithFGColor(CP_COLOR_GOLD)
     };
 
-    const IVStyle styleTogButts = styleKnobs.WithValueText(DEFAULT_VALUE_TEXT.WithFGColor(COLOR_WHITE).WithFont("FreeSans").WithSize(18.));
-    const IVStyle styleHelpButts = styleKnobs.WithValueText(DEFAULT_VALUE_TEXT.WithFGColor(COLOR_WHITE).WithFont("FreeSans").WithSize(8.));
+    const IVStyle styleTogButts = styleKnobs.WithValueText(DEFAULT_VALUE_TEXT.WithFGColor(COLOR_WHITE).WithSize(18.));
+    const IVStyle styleHelpButts = styleKnobs.WithValueText(DEFAULT_VALUE_TEXT.WithFGColor(COLOR_WHITE).WithSize(8.));
 
      const IVStyle styleOutMeter {
       true, // Show label
@@ -168,8 +179,8 @@ ComPressure::ComPressure(const InstanceInfo& info)
         DEFAULT_X2COLOR, // Extra 2
         DEFAULT_X3COLOR  // Extra 3
       }, // Colors
-      DEFAULT_LABEL_TEXT.WithFGColor(COLOR_TRANSPARENT).WithFont("FreeSans").WithSize(16.),
-      DEFAULT_VALUE_TEXT.WithFGColor(COLOR_TRANSPARENT).WithFont("FreeSans").WithSize(13.)
+      DEFAULT_LABEL_TEXT.WithFGColor(COLOR_TRANSPARENT).WithSize(16.),
+      DEFAULT_VALUE_TEXT.WithFGColor(COLOR_TRANSPARENT).WithSize(13.)
     }; 
 
   const IVStyle styleInMeter = styleOutMeter.WithColor(kFG, CP_COLOR_GREEN);
@@ -188,7 +199,7 @@ ComPressure::ComPressure(const InstanceInfo& info)
         DEFAULT_X2COLOR, // Extra 2
         DEFAULT_X3COLOR  // Extra 3
       }, // Colors
-      DEFAULT_LABEL_TEXT.WithFGColor(COLOR_TRANSPARENT).WithFont("FreeSans").WithSize(16.),
+      DEFAULT_LABEL_TEXT.WithFGColor(COLOR_TRANSPARENT).WithSize(16.),
       DEFAULT_VALUE_TEXT.WithFGColor(COLOR_TRANSPARENT)
     }; 
 
@@ -200,6 +211,7 @@ ComPressure::ComPressure(const InstanceInfo& info)
     pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(90).GetVShifted(-100).GetHShifted(-250), kPawClawL, "PawClaw", styleKnobs,true));
     pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(90).GetVShifted(20).GetHShifted(-350), kMakeupGainL, "Makeup", styleKnobs,true));
     pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(90).GetVShifted(20).GetHShifted(-250), kMaxGainReductL, "GR Limit", styleKnobs,true));
+    pGraphics->AttachControl(new ILEDControl(b.GetCentredInside(25).GetVShifted(-34).GetHShifted(-250), CP_COLOR_GOLD), kGRLEnableLLED);
 
     pGraphics->AttachControl(new IVToggleControl(b.GetCentredInside(100,36).GetVShifted(110).GetHShifted(-300), kSideDisableL,"" , styleTogButts, "Left/Mid IN", "Left/Mid IN"));
     pGraphics->AttachControl(new ILEDControl(b.GetCentredInside(25).GetVShifted(78).GetHShifted(-298), CP_COLOR_GOLD), kSideEnableLLED);
@@ -210,6 +222,7 @@ ComPressure::ComPressure(const InstanceInfo& info)
     pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(90).GetVShifted(-100).GetHShifted(250), kPawClawR, "PawClaw", styleKnobs,true));
     pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(90).GetVShifted(20).GetHShifted(150), kMakeupGainR, "Makeup", styleKnobs,true));
     pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(90).GetVShifted(20).GetHShifted(250), kMaxGainReductR, "GR Limit", styleKnobs,true));
+    pGraphics->AttachControl(new ILEDControl(b.GetCentredInside(25).GetVShifted(-34).GetHShifted(250), CP_COLOR_GOLD), kGRLEnableRLED);
 
     pGraphics->AttachControl(new IVToggleControl(b.GetCentredInside(110,36).GetVShifted(110).GetHShifted(200), kSideDisableR,"" , styleTogButts, "Right/Side IN", "Right/Side IN"));
     pGraphics->AttachControl(new ILEDControl(b.GetCentredInside(25).GetVShifted(78).GetHShifted(202), CP_COLOR_GOLD), kSideEnableRLED);
@@ -253,77 +266,77 @@ ComPressure::ComPressure(const InstanceInfo& info)
 
     auto pressureaction = [pGraphics](IControl* pCaller) {
         SplashClickActionFunc(pCaller);
-        pGraphics->ShowMessageBox("Pressure", "Pressure determines at what point the compressor activates, ie the threshold", kMB_OK);
+        MessageBox( "Pressure", "Pressure determines at what point the compressor activates, ie the threshold", pGraphics);
     };
 
   auto speedaction = [pGraphics](IControl* pCaller) {
         SplashClickActionFunc(pCaller);
-        pGraphics->ShowMessageBox("Speed", "Speed controls how fast the compressor acts, both attack and release times", kMB_OK);
+        MessageBox("Speed", "Speed controls how fast the compressor acts, both attack and release times", pGraphics);
     };
 
   auto mewaction = [pGraphics](IControl* pCaller) {
         SplashClickActionFunc(pCaller);
-        pGraphics->ShowMessageBox("Mewiness", "Mewiness manages the way that the ratio engages, with high levels giving vari-mu like behaviour", kMB_OK);
+        MessageBox("Mewiness", "Mewiness manages the way that the ratio engages, with high levels giving vari-mu like behaviour", pGraphics);
     };
 
   auto pawaction = [pGraphics](IControl* pCaller) {
         SplashClickActionFunc(pCaller);
-        pGraphics->ShowMessageBox("PawClaw", "PawClaw controls how mewiness acts on transients, the claw end clamps down and the paw end lets them through more", kMB_OK);
+        MessageBox("PawClaw", "PawClaw controls how mewiness acts on transients, the claw end clamps down and the paw end lets them through more", pGraphics);
     };
 
   auto mkgainaction = [pGraphics](IControl* pCaller) {
         SplashClickActionFunc(pCaller);
-        pGraphics->ShowMessageBox("Makeup gain", "Makeup gain is the gain applied after any compression has been done", kMB_OK);
+        MessageBox("Makeup gain", "Makeup gain is the gain applied after any compression has been done", pGraphics);
     };
 
   auto grlaction = [pGraphics](IControl* pCaller) {
         SplashClickActionFunc(pCaller);
-        pGraphics->ShowMessageBox("Gain Reduction Limit", "The gain reduction limit causes the compressor to have a cap on how much gain reduction it will do.\nA zero value will cause the gain reduction limit to be disabled.", kMB_OK);
+        MessageBox("Gain Reduction Limit", "The gain reduction limit causes the compressor to have a cap on how much gain reduction it will do.\nA zero value will cause the gain reduction limit to be disabled.", pGraphics);
     };
 
   auto schpfaction = [pGraphics](IControl* pCaller) {
         SplashClickActionFunc(pCaller);
-        pGraphics->ShowMessageBox("Sidechain Filter", "This is a high pass filter controlling how the detector responds to low frequencies.\nThis filter is active in either external or internal sidechain mode ,but disabled at the 30Hz setting", kMB_OK);
+        MessageBox("Sidechain Filter", "This is a high pass filter controlling how the detector responds to low frequencies.\nThis filter is active in either external or internal sidechain mode ,but disabled at the 30Hz setting", pGraphics);
     };
 
   auto mainoutaction = [pGraphics](IControl* pCaller) {
         SplashClickActionFunc(pCaller);
-        pGraphics->ShowMessageBox("Output", "Output controls the main (wet) output level, prior to the dry/wet mix setting", kMB_OK);
+        MessageBox("Output", "Output controls the main (wet) output level, prior to the dry/wet mix setting", pGraphics);
     };
 
   auto drywetaction = [pGraphics](IControl* pCaller) {
         SplashClickActionFunc(pCaller);
-        pGraphics->ShowMessageBox("Dry-Wet", "Dry wet controls the balance between the dry input signal and the wet output signal", kMB_OK);
+        MessageBox("Dry-Wet", "Dry wet controls the balance between the dry input signal and the wet output signal", pGraphics);
     };
 
   auto sidechaction = [pGraphics](IControl* pCaller) {
         SplashClickActionFunc(pCaller);
-        pGraphics->ShowMessageBox("External Sidechain", "This switches compressor detection to use the external sidechain", kMB_OK);
+        MessageBox("External Sidechain", "This switches compressor detection to use the external sidechain", pGraphics);
     };
 
   auto midsideaction = [pGraphics](IControl* pCaller) {
         SplashClickActionFunc(pCaller);
-        pGraphics->ShowMessageBox("Mid/Side", "This changes the channel mode to mid/side mode", kMB_OK);
+        MessageBox("Mid/Side", "This changes the channel mode to mid/side mode", pGraphics);
     };
 
   auto softclipaction = [pGraphics](IControl* pCaller) {
         SplashClickActionFunc(pCaller);
-        pGraphics->ShowMessageBox("Soft Clip", "Soft Clip activates a soft/safety clipper at the very end of the output chain.\nIf enabled it will be active at every left/right channel setting", kMB_OK);
+        MessageBox("Soft Clip", "Soft Clip activates a soft/safety clipper at the very end of the output chain.\nIf enabled it will be active at every left/right channel setting", pGraphics);
     };
 
   auto disabsideaction = [pGraphics](IControl* pCaller) {
         SplashClickActionFunc(pCaller);
-        pGraphics->ShowMessageBox("", "This allows processing on this side to be enabled or disabled", kMB_OK);
+        MessageBox("", "This allows processing on this side to be enabled or disabled", pGraphics);
     };
 
   auto linkaction = [pGraphics](IControl* pCaller) {
         SplashClickActionFunc(pCaller);
-        pGraphics->ShowMessageBox("Link", "This causes the controls on each of the left and right (or mid and side) sides to be linked\nWhen first enabled, the current left side settings are copied to the right side", kMB_OK);
+        MessageBox("Link", "This causes the controls on each of the left and right (or mid and side) sides to be linked\nWhen first enabled, the current left side settings are copied to the right side", pGraphics);
     };
 
   auto bypassaction = [pGraphics](IControl* pCaller) {
         SplashClickActionFunc(pCaller);
-        pGraphics->ShowMessageBox("Bypass", "This disables all plugin processing, except for the input and output meters", kMB_OK);
+        MessageBox("Bypass", "This disables all plugin processing, except for the input and output meters", pGraphics);
     };
 
 
@@ -355,14 +368,14 @@ ComPressure::ComPressure(const InstanceInfo& info)
     pGraphics->AttachControl(new StdMeterFrame(b.GetCentredInside(300,45).GetVShifted(-160).GetHShifted(-50)), kNoTag);
     pGraphics->AttachControl(new StdMeterFrame(b.GetCentredInside(300,45).GetVShifted(-240).GetHShifted(-50)), kNoTag);
 
-    pGraphics->AttachControl(new IVLabelControl (b.GetCentredInside(100,20).GetVShifted(-205).GetHShifted(-50), "Input", DEFAULT_STYLE.WithDrawFrame(false).WithDrawShadows(false).WithValueText(DEFAULT_VALUE_TEXT.WithFGColor(CP_COLOR_GOLD).WithFont("FreeSans").WithSize(16.))));
-    pGraphics->AttachControl(new IVLabelControl (b.GetCentredInside(100,20).GetVShifted(-125).GetHShifted(-50), "Output", DEFAULT_STYLE.WithDrawFrame(false).WithDrawShadows(false).WithValueText(DEFAULT_VALUE_TEXT.WithFGColor(CP_COLOR_GOLD).WithFont("FreeSans").WithSize(16.))));
-    pGraphics->AttachControl(new IVLabelControl (b.GetCentredInside(100,20).GetVShifted(-45).GetHShifted(-50), "Gain Reduction", DEFAULT_STYLE.WithDrawFrame(false).WithDrawShadows(false).WithValueText(DEFAULT_VALUE_TEXT.WithFGColor(CP_COLOR_GOLD).WithFont("FreeSans").WithSize(16.))));
+    pGraphics->AttachControl(new IVLabelControl (b.GetCentredInside(100,20).GetVShifted(-205).GetHShifted(-50), "Input", DEFAULT_STYLE.WithDrawFrame(false).WithDrawShadows(false).WithValueText(DEFAULT_VALUE_TEXT.WithFGColor(CP_COLOR_GOLD).WithSize(16.))));
+    pGraphics->AttachControl(new IVLabelControl (b.GetCentredInside(100,20).GetVShifted(-125).GetHShifted(-50), "Output", DEFAULT_STYLE.WithDrawFrame(false).WithDrawShadows(false).WithValueText(DEFAULT_VALUE_TEXT.WithFGColor(CP_COLOR_GOLD).WithSize(16.))));
+    pGraphics->AttachControl(new IVLabelControl (b.GetCentredInside(100,20).GetVShifted(-45).GetHShifted(-50), "Gain Reduction", DEFAULT_STYLE.WithDrawFrame(false).WithDrawShadows(false).WithValueText(DEFAULT_VALUE_TEXT.WithFGColor(CP_COLOR_GOLD).WithSize(16.))));
 
-    pGraphics->AttachControl(new IVLabelControl (b.GetCentredInside(200,45).GetVShifted(-15).GetHShifted(-50), "ComPressure", DEFAULT_STYLE.WithDrawFrame(false).WithDrawShadows(false).WithValueText(DEFAULT_VALUE_TEXT.WithFGColor(COLOR_RED).WithFont("FreeSans").WithSize(24.))));
+    pGraphics->AttachControl(new IVLabelControl (b.GetCentredInside(200,45).GetVShifted(-15).GetHShifted(-50), "ComPressure", DEFAULT_STYLE.WithDrawFrame(false).WithDrawShadows(false).WithValueText(DEFAULT_VALUE_TEXT.WithFGColor(COLOR_RED).WithSize(24.))));
 
-    pGraphics->AttachControl(new IVLabelControl (b.GetCentredInside(100,20).GetVShifted(15).GetHShifted(-50), "v1.0 by", DEFAULT_STYLE.WithDrawFrame(false).WithDrawShadows(false).WithValueText(DEFAULT_VALUE_TEXT.WithFGColor(COLOR_WHITE).WithFont("FreeSans").WithSize(16.))));
-    pGraphics->AttachControl(new IURLControl (b.GetCentredInside(100,20).GetVShifted(40).GetHShifted(-50), "pelennor DSP", "http://pelennordsp.com", DEFAULT_VALUE_TEXT.WithFGColor(COLOR_WHITE).WithFont("FreeSans").WithSize(16.)));
+    pGraphics->AttachControl(new IVLabelControl (b.GetCentredInside(100,20).GetVShifted(15).GetHShifted(-50), "v1.1 by", DEFAULT_STYLE.WithDrawFrame(false).WithDrawShadows(false).WithValueText(DEFAULT_VALUE_TEXT.WithFGColor(COLOR_WHITE).WithSize(16.))));
+    pGraphics->AttachControl(new IURLControl (b.GetCentredInside(100,20).GetVShifted(40).GetHShifted(-50), "pelennor DSP", "http://pelennordsp.com", DEFAULT_VALUE_TEXT.WithFGColor(COLOR_WHITE).WithSize(16.)));
 
  	//IURLControl (const IRECT &bounds, const char *str, const char *url, const IText &text=DEFAULT_TEXT, const IColor &BGColor=DEFAULT_BGCOLOR, const IColor &MOColor=COLOR_WHITE, const IColor &CLColor=COLOR_BLUE)
 
@@ -1008,6 +1021,8 @@ void ComPressure::updateLED()
       SendControlValueFromDelegate(kMidSideLED,false);
       SendControlValueFromDelegate(kSideEnableLLED,false);
       SendControlValueFromDelegate(kSideEnableRLED,false);
+      SendControlValueFromDelegate(kGRLEnableLLED,false);
+      SendControlValueFromDelegate(kGRLEnableRLED,false);
   }
   else
   {
@@ -1019,6 +1034,8 @@ void ComPressure::updateLED()
       SendControlValueFromDelegate(kMidSideLED,GetParam(kMidSideMode)->Value());
       SendControlValueFromDelegate(kSideEnableLLED,!GetParam(kSideDisableL)->Value());
       SendControlValueFromDelegate(kSideEnableRLED,!GetParam(kSideDisableR)->Value());
+      SendControlValueFromDelegate(kGRLEnableLLED,GRLimitedL);
+      SendControlValueFromDelegate(kGRLEnableRLED,GRLimitedR);
   }
 
 
